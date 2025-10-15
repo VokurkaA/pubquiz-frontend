@@ -28,6 +28,16 @@ const eslintConfig = [
       eqeqeq: ["warn", "smart"],
       curly: ["warn", "multi-line"],
       "no-console": ["warn", { allow: ["warn", "error", "info"] }],
+      // Enforce i18n: no raw string literals in JSX children
+      // Use t("key") or a translated value instead
+      "react/jsx-no-literals": [
+        "error",
+        {
+          noStrings: true, // also catch template literals
+          ignoreProps: true, // allow literals in props (e.g., ids, classNames, data-attrs)
+          allowedStrings: ["", " ", "-", "–", "—", ":", ",", "."], // small punctuation/whitespace exceptions
+        },
+      ],
     },
   },
 
@@ -45,6 +55,7 @@ const eslintConfig = [
       ],
     },
   },
+
 ];
 
 export default eslintConfig;

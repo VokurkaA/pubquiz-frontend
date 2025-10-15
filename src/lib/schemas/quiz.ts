@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-// Answer sub-schema (text only for form stage)
 export const answerSchema = z.object({
   text: z.string().min(1, "Answer is required"),
 });

@@ -17,20 +17,22 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/components/i18n/LanguageProvider";
 
 type AddQuizFormProps = {
   className?: string;
   onSubmit?: (data: QuizFormValues) => Promise<void> | void;
 };
 
-const defaultAnswer = { text: "" };
+const makeDefaultAnswer = () => ({ text: "" });
 const defaultQuestion = {
   questionText: "",
-  answers: [defaultAnswer, defaultAnswer],
+  answers: [makeDefaultAnswer(), makeDefaultAnswer()],
   correctIndex: 0,
 };
 
 export function AddQuizForm({ className, onSubmit }: AddQuizFormProps) {
+  const { t } = useI18n();
   const form = useForm<QuizFormValues>({
     resolver: zodResolver(quizFormSchema),
     defaultValues: {
@@ -69,9 +71,9 @@ export function AddQuizForm({ className, onSubmit }: AddQuizFormProps) {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Quiz name</FormLabel>
+                <FormLabel>{t("addQuizForm.nameLabel")}</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g. General Knowledge #1" {...field} />
+                  <Input placeholder={t("addQuizForm.namePlaceholder")} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -83,16 +85,18 @@ export function AddQuizForm({ className, onSubmit }: AddQuizFormProps) {
           {questionFields.map((qField, qIndex) => (
             <Card key={qField.id} className="grid gap-4 p-4 sm:p-5 md:p-6">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                <div className="text-sm font-medium">Question {qIndex + 1}</div>
+                <div className="text-sm font-medium">
+                  {t("addQuizForm.questionLabel", { n: qIndex + 1 })}
+                </div>
                 <Button
                   type="button"
                   variant="secondary"
                   size="sm"
                   onClick={() => removeQuestion(qIndex)}
                   disabled={questionFields.length <= 1}
-                  className="w-full sm:w-auto"
+                  className="hover:bg-destructive hover:text-destructive-foreground w-full sm:w-auto"
                 >
-                  Remove question
+                  {t("addQuizForm.removeQuestion")}
                 </Button>
               </div>
 
@@ -101,9 +105,9 @@ export function AddQuizForm({ className, onSubmit }: AddQuizFormProps) {
                 name={`questions.${qIndex}.questionText`}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Question text</FormLabel>
+                    <FormLabel>{t("addQuizForm.questionTextLabel")}</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Type the question here" {...field} />
+                      <Textarea placeholder={t("addQuizForm.questionTextLabel")} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -122,14 +126,14 @@ export function AddQuizForm({ className, onSubmit }: AddQuizFormProps) {
               onClick={() => appendQuestion(defaultQuestion)}
               className="w-full sm:w-auto"
             >
-              Add question
+              {t("addQuizForm.addQuestion")}
             </Button>
           </div>
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button type="submit" className="w-full sm:w-auto">
-            Create quiz
+            {t("addQuizForm.create")}
           </Button>
           <Button
             type="reset"
@@ -137,7 +141,7 @@ export function AddQuizForm({ className, onSubmit }: AddQuizFormProps) {
             onClick={() => form.reset()}
             className="w-full sm:w-auto"
           >
-            Reset
+            {t("addQuizForm.reset")}
           </Button>
         </div>
       </form>
@@ -146,6 +150,7 @@ export function AddQuizForm({ className, onSubmit }: AddQuizFormProps) {
 }
 
 function AnswersEditor({ parentIndex }: { parentIndex: number }) {
+  const { t } = useI18n();
   const form = useFormContextSafe<QuizFormValues>();
   const {
     fields: answerFields,
@@ -163,7 +168,7 @@ function AnswersEditor({ parentIndex }: { parentIndex: number }) {
         name={`questions.${parentIndex}.correctIndex` as const}
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Answers (choose the correct one)</FormLabel>
+            <FormLabel>{t("addQuizForm.answersLabel")}</FormLabel>
             <FormControl>
               <RadioGroup
                 value={String(field.value)}
@@ -179,7 +184,10 @@ function AnswersEditor({ parentIndex }: { parentIndex: number }) {
                       render={({ field: answerField }) => (
                         <FormItem className="flex-1">
                           <FormControl>
-                            <Input placeholder={`Answer ${aIndex + 1}`} {...answerField} />
+                            <Input
+                              placeholder={t("addQuizForm.answerPlaceholder", { n: aIndex + 1 })}
+                              {...answerField}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -189,11 +197,34 @@ function AnswersEditor({ parentIndex }: { parentIndex: number }) {
                       type="button"
                       variant="secondary"
                       size="sm"
-                      onClick={() => removeAnswer(aIndex)}
+                      onClick={() => {
+                        if (!canRemove) return;
+                        const correct = form.getValues(
+                          `questions.${parentIndex}.correctIndex` as const
+                        );
+                        // If removing an answer at or before current correct index,
+                        // shift the correctIndex left so it stays valid.
+                        if (aIndex === correct) {
+                          // After removal, length decreases by 1
+                          const nextIndex = Math.max(0, Math.min(correct, answerFields.length - 2));
+                          form.setValue(
+                            `questions.${parentIndex}.correctIndex` as const,
+                            nextIndex,
+                            { shouldValidate: true }
+                          );
+                        } else if (aIndex < correct) {
+                          form.setValue(
+                            `questions.${parentIndex}.correctIndex` as const,
+                            correct - 1,
+                            { shouldValidate: true }
+                          );
+                        }
+                        removeAnswer(aIndex);
+                      }}
                       disabled={!canRemove}
-                      className="w-full sm:w-auto"
+                      className="hover:bg-destructive hover:text-destructive-foreground w-full sm:w-auto"
                     >
-                      Remove
+                      {t("addQuizForm.remove")}
                     </Button>
                   </div>
                 ))}
@@ -211,7 +242,7 @@ function AnswersEditor({ parentIndex }: { parentIndex: number }) {
           disabled={!canAdd}
           className="w-full sm:w-auto"
         >
-          Add answer
+          {t("addQuizForm.addAnswer")}
         </Button>
       </div>
     </div>
