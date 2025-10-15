@@ -57,7 +57,7 @@ export function AddQuizForm({ className, onSubmit }: AddQuizFormProps) {
 
     if (onSubmit) onSubmit(values);
     // TODO: replace with actual submission logic
-    console.log("Quiz payload", payload);
+    console.info("Quiz payload", payload);
   });
 
   return (
@@ -219,9 +219,9 @@ function AnswersEditor({ parentIndex }: { parentIndex: number }) {
 }
 
 // Helper because RHF useFormContext throws if used outside a FormProvider, but we control it in this file
-import { useFormContext, type FieldValues } from "react-hook-form";
+import { useFormContext, type FieldValues, type UseFormReturn } from "react-hook-form";
 function useFormContextSafe<T extends FieldValues>() {
-  return useFormContext() as unknown as import("react-hook-form").UseFormReturn<T>;
+  return useFormContext() as unknown as UseFormReturn<T>;
 }
 
 export default AddQuizForm;
