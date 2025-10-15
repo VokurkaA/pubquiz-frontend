@@ -1,0 +1,15 @@
+# Build outputs
+.next
+out
+build
+coverage
+
+# Node
+node_modules
+
+# Misc
+*.log
+*.lock
+
+# Generated
+.next/types

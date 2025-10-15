@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <div className="min-h-screen p-8">
       <ThemeToggle />
-      <div className="flex gap-4 items-center flex-col sm:flex-row">
+      <div className="flex flex-col items-center gap-4 sm:flex-row">
         <Button asChild>
           <Link href="/scan">scan</Link>
         </Button>
