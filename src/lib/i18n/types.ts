@@ -31,7 +31,26 @@ export type Dictionary = {
   pages: {
     scan: { title: string; subtitle: string };
     addQuiz: { title: string };
-    stats: { title: string };
+    stats: {
+      title: string;
+      totalQuizzes: string;
+      numberOfSessions: string;
+      questions: string;
+      acrossSessions: string;
+      accuracy: string;
+      correctRatio: string;
+      lastPlayed: string;
+      mostRecentSession: string;
+      emptyTitle: string;
+      emptyDescription: string;
+      loadDemo: string;
+      questionsCount_one: string; // {n}
+      questionsCount_other: string; // {n}
+      votesCount_one: string; // {n}
+      votesCount_other: string; // {n}
+      percent: string; // {n}
+      percentCorrect: string; // {n}
+    };
     offline: { title: string; description: string; retry: string; goHome: string };
     play: {
       title: string;

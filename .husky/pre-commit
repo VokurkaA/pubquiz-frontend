@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "Running lint-staged (format + lint staged files)"
+npx lint-staged
+
+echo "Running TypeScript typecheck"
+npm run typecheck
+
+echo "Running ESLint (full repo)"
+npm run lint

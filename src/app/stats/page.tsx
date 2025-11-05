@@ -1,79 +1,298 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { useI18n } from "@/components/i18n/LanguageProvider";
-import { Card, CardContent } from "@/components/ui/card";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@radix-ui/react-collapsible";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from "recharts";
+import { Badge } from "@/components/ui/badge";
 
-export default function Stats() {
+type AnswerOptionStat = {
+  option: string; // e.g. "A", "B", "C", "D"
+  count: number;
+  correct: boolean;
+};
+
+type QuestionStat = {
+  question: string;
+  options: AnswerOptionStat[]; // length 2..4
+};
+
+type QuizStat = {
+  id: string;
+  name: string;
+  playedAt: string; // ISO date
+  questions: QuestionStat[];
+};
+
+function getDemoStats(): QuizStat[] {
+  return [
+    {
+      id: "q-1",
+      name: "General Knowledge #1",
+      playedAt: new Date().toISOString(),
+      questions: [
+        {
+          question: "When was our company founded?",
+          options: [
+            { option: "A", count: 5, correct: false },
+            { option: "B", count: 9, correct: true },
+            { option: "C", count: 1, correct: false },
+            { option: "D", count: 0, correct: false },
+          ],
+        },
+        {
+          question: "Which language powers Next.js?",
+          options: [
+            { option: "A", count: 1, correct: false },
+            { option: "B", count: 12, correct: true },
+            { option: "C", count: 0, correct: false },
+            { option: "D", count: 0, correct: false },
+          ],
+        },
+      ],
+    },
+    {
+      id: "q-2",
+      name: "Tech Trivia #2",
+      playedAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+      questions: [
+        {
+          question: "What is React?",
+          options: [
+            { option: "A", count: 2, correct: false },
+            { option: "B", count: 7, correct: false },
+            { option: "C", count: 10, correct: true },
+            { option: "D", count: 0, correct: false },
+          ],
+        },
+      ],
+    },
+  ];
+}
+
+export default function StatsPage() {
   const { t } = useI18n();
-  return <div className="p-4 text-2xl font-semibold">
-    {t("pages.stats.title")}
-    <Collapsible>
-      <CollapsibleTrigger>
-      <Card className="flex-row">
-        Quiz 1
-        </Card>
-      </CollapsibleTrigger>
+  const [data, setData] = useState<QuizStat[]>([]);
 
-      <CollapsibleContent>
-        <Card className="flex-row">
-          Dummy otazka 1:
-          <CardContent className="flex flex-row flex-1 gap-4 justify-center">
-            <p className="text-green-600">A: 5/9</p>
-            <p className="text-red-600">B: 3/9</p>
-            <p className="text-red-600">C: 1/9</p>
-            <p className="text-red-600">D: 0/9</p>
-          </CardContent>
-        </Card>
-        <Card className="flex-row">
-          Dummy otazka 2:
-          <CardContent className="flex flex-row flex-1 gap-4 justify-center">
-            <p className="text-green-600">A: 5/9</p>
-            <p className="text-red-600">B: 3/9</p>
-            <p className="text-red-600">C: 1/9</p>
-            <p className="text-red-600">D: 0/9</p>
-          </CardContent>
-        </Card>
-      </CollapsibleContent>
-    </Collapsible>
+  // Try to read stats from localStorage; if nothing is found, keep empty (we show empty state)
+  useEffect(() => {
+    try {
+      const raw = typeof window !== "undefined" ? localStorage.getItem("pubquiz:stats") : null;
+      if (raw) {
+        const parsed = JSON.parse(raw) as QuizStat[];
+        if (Array.isArray(parsed)) setData(parsed);
+      }
+    } catch {
+      // ignore parse errors
+    }
+  }, []);
 
-        <Collapsible>
-      <CollapsibleTrigger>
-            <Card className="flex-row">
-        Quiz 2
-        </Card>
-      </CollapsibleTrigger>
+  const totals = useMemo(() => {
+    const quizzes = data.length;
+    const questions = data.reduce((acc, qz) => acc + qz.questions.length, 0);
+    const { correct, total } = data.reduce(
+      (acc, qz) => {
+        qz.questions.forEach((q) => {
+          const sum = q.options.reduce((s, o) => s + o.count, 0);
+          const corr = q.options.find((o) => o.correct)?.count ?? 0;
+          acc.total += sum;
+          acc.correct += corr;
+        });
+        return acc;
+      },
+      { correct: 0, total: 0 }
+    );
+    const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+    const lastPlayed = data.map((d) => new Date(d.playedAt).getTime()).sort((a, b) => b - a)[0];
+    return { quizzes, questions, accuracy, lastPlayed: lastPlayed ? new Date(lastPlayed) : null };
+  }, [data]);
 
-      <CollapsibleContent>
-        <Card className="flex-row">
-          Dummy otazka 1:
-          <CardContent className="flex flex-row flex-1 gap-4 justify-center">
-            <p className="text-green-600">A: 5/9</p>
-            <p className="text-red-600">B: 3/9</p>
-            <p className="text-red-600">C: 1/9</p>
-            <p className="text-red-600">D: 0/9</p>
+  const loadDemo = () => setData(getDemoStats());
+
+  return (
+    <div className="container mx-auto grid max-w-6xl gap-6 px-4 py-6">
+      <h1 className="text-2xl font-semibold sm:text-3xl">{t("pages.stats.title")}</h1>
+
+      {/* Summary cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("pages.stats.totalQuizzes")}</CardTitle>
+            <CardDescription>{t("pages.stats.numberOfSessions")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-semibold">{totals.quizzes}</div>
           </CardContent>
         </Card>
-        <Card className="flex-row">
-          Dummy otazka 2:
-          <CardContent className="flex flex-row flex-1 gap-4 justify-center">
-            <p className="text-green-600">A: 5/9</p>
-            <p className="text-red-600">B: 3/9</p>
-            <p className="text-red-600">C: 1/9</p>
-            <p className="text-red-600">D: 0/9</p>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("pages.stats.questions")}</CardTitle>
+            <CardDescription>{t("pages.stats.acrossSessions")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-semibold">{totals.questions}</div>
           </CardContent>
         </Card>
-      </CollapsibleContent>
-    </Collapsible>
-<br></br>
-    <Card className="flex-row">
-      Dummy samostatna otazka 3:
-      <CardContent className="flex flex-row flex-1 gap-4 justify-center">
-        <p className="text-green-600">A: 5/9</p>
-        <p className="text-red-600">B: 3/9</p>
-        <p className="text-red-600">C: 1/9</p>
-        <p className="text-red-600">D: 0/9</p>
-      </CardContent>
-    </Card>
-  </div>;
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("pages.stats.accuracy")}</CardTitle>
+            <CardDescription>{t("pages.stats.correctRatio")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-semibold">
+              {t("pages.stats.percent", { n: totals.accuracy })}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("pages.stats.lastPlayed")}</CardTitle>
+            <CardDescription>{t("pages.stats.mostRecentSession")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-semibold">
+              {totals.lastPlayed ? totals.lastPlayed.toLocaleDateString() : "—"}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Empty state */}
+      {data.length === 0 ? (
+        <Empty className="border">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              {/* simple dot */}
+              <div className="bg-primary/20 size-6 rounded" />
+            </EmptyMedia>
+            <EmptyTitle>{t("pages.stats.emptyTitle")}</EmptyTitle>
+            <EmptyDescription>{t("pages.stats.emptyDescription")}</EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <button
+              onClick={loadDemo}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium"
+              type="button"
+            >
+              {t("pages.stats.loadDemo")}
+            </button>
+          </EmptyContent>
+        </Empty>
+      ) : null}
+
+      {/* Per-quiz details */}
+      <div className="grid gap-4">
+        {data.map((quiz) => {
+          // compute quiz accuracy
+          const { correct, total } = quiz.questions.reduce(
+            (acc, q) => {
+              const sum = q.options.reduce((s, o) => s + o.count, 0);
+              const corr = q.options.find((o) => o.correct)?.count ?? 0;
+              acc.total += sum;
+              acc.correct += corr;
+              return acc;
+            },
+            { correct: 0, total: 0 }
+          );
+          const accPct = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+          return (
+            <Collapsible key={quiz.id}>
+              <CollapsibleTrigger asChild>
+                <Card className="hover:bg-muted/40 cursor-pointer transition-colors">
+                  <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                      <CardTitle className="text-lg">{quiz.name}</CardTitle>
+                      <CardDescription>
+                        {new Date(quiz.playedAt).toLocaleString()} —{" "}
+                        {t(
+                          quiz.questions.length === 1
+                            ? "pages.stats.questionsCount_one"
+                            : "pages.stats.questionsCount_other",
+                          { n: quiz.questions.length }
+                        )}
+                      </CardDescription>
+                    </div>
+                    <Badge className="text-base" variant="secondary">
+                      {t("pages.stats.percentCorrect", { n: accPct })}
+                    </Badge>
+                  </CardHeader>
+                </Card>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <div className="grid gap-4">
+                  {quiz.questions.map((q, idx) => {
+                    const totalVotes = q.options.reduce((s, o) => s + o.count, 0) || 1;
+                    // Build chart data e.g. [{label:'A', count:5, correct:true}, ...]
+                    const chartData = q.options.map((o) => ({
+                      label: o.option,
+                      count: o.count,
+                      correct: o.correct,
+                    }));
+                    return (
+                      <Card key={`${quiz.id}-${idx}`}>
+                        <CardHeader>
+                          <CardTitle className="text-base">{q.question}</CardTitle>
+                          <CardDescription>
+                            {t(
+                              totalVotes === 1
+                                ? "pages.stats.votesCount_one"
+                                : "pages.stats.votesCount_other",
+                              { n: totalVotes }
+                            )}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <ChartContainer
+                            config={{
+                              correct: { color: "hsl(142 76% 36%)" }, // green-600
+                              wrong: { color: "hsl(0 84% 60%)" }, // red-500
+                            }}
+                            className="h-52 w-full"
+                          >
+                            <BarChart data={chartData} barSize={28}>
+                              <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                              <XAxis dataKey="label" tickLine={false} axisLine={false} />
+                              <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
+                              <ChartTooltip
+                                cursor={{ fill: "rgba(0,0,0,0.04)" }}
+                                content={<ChartTooltipContent hideIndicator />}
+                              />
+                              <Bar dataKey="count">
+                                {chartData.map((entry, i) => (
+                                  <Cell
+                                    key={`cell-${i}`}
+                                    fill={
+                                      entry.correct ? "var(--color-correct)" : "var(--color-wrong)"
+                                    }
+                                  />
+                                ))}
+                              </Bar>
+                            </BarChart>
+                          </ChartContainer>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
