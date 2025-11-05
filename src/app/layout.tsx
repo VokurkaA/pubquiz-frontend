@@ -16,6 +16,8 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "PubQuiz",
   description: "Web app to host and manage pub quizzes",
+  manifest: "/manifest.webmanifest",
+  themeColor: "#0a0a0a",
 };
 
 export default function RootLayout({

@@ -7,6 +7,7 @@ export type Dictionary = {
     scanner: string;
     addQuiz: string;
     stats: string;
+    play: string;
     language: string;
     theme: string;
     themeToggle: {
@@ -31,6 +32,17 @@ export type Dictionary = {
     scan: { title: string; subtitle: string };
     addQuiz: { title: string };
     stats: { title: string };
+    offline: { title: string; description: string; retry: string; goHome: string };
+    play: {
+      title: string;
+      button: string;
+      questionIndicator: string; // Question {i} of {n}
+      reveal: string;
+      hide: string;
+      next: string;
+      fullscreen: string;
+      exitFullscreen: string;
+    };
   };
   addQuizForm: {
     nameLabel: string;

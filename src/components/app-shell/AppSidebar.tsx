@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, PlusCircle, QrCode } from "lucide-react";
+import { BarChart3, Gamepad2, PlusCircle, QrCode } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -35,6 +35,7 @@ export function AppSidebar() {
     { href: "/scan", label: t("sidebar.scanner"), icon: QrCode },
     { href: "/add-quiz", label: t("sidebar.addQuiz"), icon: PlusCircle },
     { href: "/stats", label: t("sidebar.stats"), icon: BarChart3 },
+    { href: "/play", label: t("sidebar.play"), icon: Gamepad2 },
   ];
 
   return (
