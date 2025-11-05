@@ -9,6 +9,7 @@ export const cs: Dictionary = {
     scanner: "Skenování",
     addQuiz: "Přidat kvíz",
     stats: "Statistiky",
+    play: "Hraj",
     language: "Jazyk",
     theme: "Téma",
     themeToggle: {
@@ -50,6 +51,22 @@ export const cs: Dictionary = {
     },
     stats: {
       title: "Statistiky",
+    },
+    offline: {
+      title: "Jste offline",
+      description: "Zdá se, že není k dispozici internetové připojení. Některé funkce nemusí fungovat.",
+      retry: "Zkusit znovu",
+      goHome: "Domů",
+    },
+    play: {
+      title: "Hraj",
+      button: "Stiskni mě",
+      questionIndicator: "Otázka {i} z {n}",
+      reveal: "Zobrazit",
+      hide: "Skrýt",
+      next: "Další",
+      fullscreen: "Na celou obrazovku",
+      exitFullscreen: "Ukončit celou obrazovku",
     },
   },
   addQuizForm: {

@@ -9,6 +9,7 @@ export const en: Dictionary = {
     scanner: "Scanner",
     addQuiz: "Add quiz",
     stats: "Stats",
+    play: "Play",
     language: "Language",
     theme: "Theme",
     themeToggle: {
@@ -50,6 +51,22 @@ export const en: Dictionary = {
     },
     stats: {
       title: "Stats",
+    },
+    offline: {
+      title: "You are offline",
+      description: "It looks like there's no internet connection. Some features may be unavailable.",
+      retry: "Retry",
+      goHome: "Go home",
+    },
+    play: {
+      title: "Play",
+      button: "Press me",
+      questionIndicator: "Question {i} of {n}",
+      reveal: "Reveal",
+      hide: "Hide",
+      next: "Next",
+      fullscreen: "Fullscreen",
+      exitFullscreen: "Exit fullscreen",
     },
   },
   addQuizForm: {

@@ -19,6 +19,23 @@ npm run dev
 
 App opens at http://localhost:3000 and immediately redirects to `/scan`.
 
+### Play page (projector/TV mode)
+
+The Play screen is designed to be shown on a projector or TV.
+
+- Route: `/play`
+- Query params:
+	- `q` — 0-based question index (e.g. `/play?q=1`)
+	- `t` — countdown time in seconds (default 25), e.g. `/play?t=45`
+- Controls in the header:
+	- Fullscreen toggle (recommended on a projector)
+	- Reveal/Hide correct answer
+	- Next question
+
+Notes:
+- The page uses a full-bleed layout, large typography, and big color tiles for high visibility.
+- Currently it uses in-memory demo questions; replace with real quiz data when backend/API is ready.
+
 ### Project structure
 
 - `src/app/layout.tsx` – root layout, metadata, fonts, providers
