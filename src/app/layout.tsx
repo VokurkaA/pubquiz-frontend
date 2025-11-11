@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AppRoot from "../components/AppRoot";
@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   title: "PubQuiz",
   description: "Web app to host and manage pub quizzes",
   manifest: "/manifest.webmanifest",
+};
+
+export const viewport: Viewport = {
   themeColor: "#0a0a0a",
 };
 

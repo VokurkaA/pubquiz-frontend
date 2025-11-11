@@ -18,7 +18,7 @@ export type Dictionary = {
     };
   };
   ui: {
-    common: { close: string };
+    common: { close: string; loading: string; error: string; saved: string };
     breadcrumb: { more: string };
     carousel: { previousSlide: string; nextSlide: string };
     pagination: { previous: string; next: string; morePages: string };
@@ -61,6 +61,7 @@ export type Dictionary = {
       next: string;
       fullscreen: string;
       exitFullscreen: string;
+      noQuestions: string;
     };
   };
   addQuizForm: {

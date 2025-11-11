@@ -2,13 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 
-export function Countdown({
-  seconds,
-  onEnd,
-}: {
-  seconds: number;
-  onEnd?: () => void;
-}) {
+export function Countdown({ seconds, onEnd }: { seconds: number; onEnd?: () => void }) {
   const [left, setLeft] = useState(seconds);
 
   useEffect(() => {
@@ -36,14 +30,7 @@ export function Countdown({
   return (
     <div className="flex items-center gap-2">
       <svg viewBox="0 0 64 64" className="h-14 w-14 md:h-16 md:w-16" aria-hidden>
-        <circle
-          cx={center}
-          cy={center}
-          r={radius}
-          stroke="#e5e7eb"
-          strokeWidth={6}
-          fill="none"
-        />
+        <circle cx={center} cy={center} r={radius} stroke="#e5e7eb" strokeWidth={6} fill="none" />
         <circle
           cx={center}
           cy={center}

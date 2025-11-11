@@ -10,8 +10,13 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: "#0a0a0a",
     theme_color: "#0a0a0a",
     icons: [
-      { src: "/vercel.svg", sizes: "any", type: "image/svg+xml" },
-      { src: "/next.svg", sizes: "any", type: "image/svg+xml" }
+      { src: "/icons/pubquiz.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
+      {
+        src: "/icons/pubquiz-maskable.svg",
+        sizes: "any",
+        type: "image/svg+xml",
+        purpose: "maskable",
+      },
     ],
   };
 }

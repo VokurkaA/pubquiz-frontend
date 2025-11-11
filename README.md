@@ -25,16 +25,39 @@ The Play screen is designed to be shown on a projector or TV.
 
 - Route: `/play`
 - Query params:
-	- `q` — 0-based question index (e.g. `/play?q=1`)
-	- `t` — countdown time in seconds (default 25), e.g. `/play?t=45`
+  - `quiz` — quiz id to load from the API (optional; if omitted, the first quiz is used when available)
+  - `q` — 0-based question index (e.g. `/play?quiz=abc123&q=1`)
+  - `t` — countdown time in seconds (default 25), e.g. `/play?t=45`
 - Controls in the header:
-	- Fullscreen toggle (recommended on a projector)
-	- Reveal/Hide correct answer
-	- Next question
+  - Fullscreen toggle (recommended on a projector)
+  - Reveal/Hide correct answer
+  - Next question
 
 Notes:
+
 - The page uses a full-bleed layout, large typography, and big color tiles for high visibility.
-- Currently it uses in-memory demo questions; replace with real quiz data when backend/API is ready.
+- Questions are loaded from the backend API. Provide `quiz` in the URL to target a specific quiz id, otherwise the first quiz is used.
+
+### Backend API
+
+Set the API base URL via environment variable in your `.env.local`:
+
+```bash
+NEXT_PUBLIC_API_BASE_URL=http://3.70.249.70:6767
+```
+
+Endpoints used by the app:
+
+- `POST /quiz` — create a new quiz
+- `GET /quiz` — list quizzes
+- `GET /quiz/:quiz_id` — get quiz by id
+- `POST /quiz/:quiz_id` — update quiz by id
+- `DELETE /quiz/:quiz_id` — delete quiz
+- `POST /quiz/:quiz_id/instance` — create a quiz instance (start)
+- `GET /quiz/instance/:instance_id` — get instance
+- `DELETE /quiz/instance/:instance_id` — delete instance
+- `POST /quiz/instance/:instance_id/state` — update instance state
+- `POST /quiz/instance/:instance_id/answer` — submit an answer
 
 ### Project structure
 

@@ -5,20 +5,20 @@
   - For static assets: stale-while-revalidate.
 */
 
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = "v1";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const PAGES_CACHE = `pages-${CACHE_VERSION}`;
 
-const OFFLINE_URL = '/offline';
+const OFFLINE_URL = "/offline";
 const PRECACHE_URLS = [
-  '/',
+  "/",
   OFFLINE_URL,
-  '/manifest.webmanifest',
-  '/vercel.svg',
-  '/next.svg',
+  "/manifest.webmanifest",
+  "/icons/pubquiz.svg",
+  "/icons/pubquiz-maskable.svg",
 ];
 
-self.addEventListener('install', (event) => {
+self.addEventListener("install", (event) => {
   event.waitUntil(
     (async () => {
       const cache = await caches.open(STATIC_CACHE);
@@ -32,7 +32,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-self.addEventListener('activate', (event) => {
+self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
       const keys = await caches.keys();
@@ -46,15 +46,15 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-self.addEventListener('fetch', (event) => {
+self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
   // Only handle same-origin GET requests
-  if (request.method !== 'GET' || url.origin !== self.location.origin) return;
+  if (request.method !== "GET" || url.origin !== self.location.origin) return;
 
   // For navigations, try network first then fall back to offline page
-  if (request.mode === 'navigate') {
+  if (request.mode === "navigate") {
     event.respondWith(
       (async () => {
         try {
@@ -66,7 +66,7 @@ self.addEventListener('fetch', (event) => {
           const cache = await caches.open(STATIC_CACHE);
           const cachedOffline = await cache.match(OFFLINE_URL);
           if (cachedOffline) return cachedOffline;
-          return new Response('You are offline.', { status: 503, statusText: 'Offline' });
+          return new Response("You are offline.", { status: 503, statusText: "Offline" });
         }
       })()
     );

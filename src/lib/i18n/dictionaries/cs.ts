@@ -22,6 +22,9 @@ export const cs: Dictionary = {
   ui: {
     common: {
       close: "Zavřít",
+      loading: "Načítání",
+      error: "Chyba",
+      saved: "Uloženo",
     },
     breadcrumb: {
       more: "Více",
@@ -86,6 +89,7 @@ export const cs: Dictionary = {
       next: "Další",
       fullscreen: "Na celou obrazovku",
       exitFullscreen: "Ukončit celou obrazovku",
+      noQuestions: "Nejsou dostupné žádné otázky.",
     },
   },
   addQuizForm: {

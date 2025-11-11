@@ -18,6 +18,9 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
 import { useI18n } from "@/components/i18n/LanguageProvider";
+import { api } from "@/lib/api";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type AddQuizFormProps = {
   className?: string;
@@ -33,6 +36,7 @@ const defaultQuestion = {
 
 export function AddQuizForm({ className, onSubmit }: AddQuizFormProps) {
   const { t } = useI18n();
+  const router = useRouter();
   const form = useForm<QuizFormValues>({
     resolver: zodResolver(quizFormSchema),
     defaultValues: {
@@ -48,7 +52,7 @@ export function AddQuizForm({ className, onSubmit }: AddQuizFormProps) {
     remove: removeQuestion,
   } = useFieldArray({ control: form.control, name: "questions" });
 
-  const handleSubmit = form.handleSubmit((values) => {
+  const handleSubmit = form.handleSubmit(async (values) => {
     const payload = {
       name: values.name,
       questions: values.questions.map((q) => ({
@@ -57,9 +61,17 @@ export function AddQuizForm({ className, onSubmit }: AddQuizFormProps) {
       })),
     };
 
-    if (onSubmit) onSubmit(values);
-    // TODO: replace with actual submission logic
-    console.info("Quiz payload", payload);
+    try {
+      await api.createQuiz(payload);
+      if (onSubmit) await onSubmit(values);
+      toast.success(t("ui.common.saved") ?? "Quiz created");
+      // Optionally navigate to play or scan; for now, go to /scan
+      router.push("/scan");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(err);
+      toast.error(message || "Failed to create quiz");
+    }
   });
 
   return (

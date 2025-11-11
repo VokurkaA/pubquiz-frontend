@@ -13,7 +13,7 @@ function Header() {
     document.documentElement.lang = locale;
   }, [locale]);
   return (
-  <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10 flex h-14 items-center gap-2 border-b px-4 backdrop-blur">
+    <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10 flex h-14 items-center gap-2 border-b px-4 backdrop-blur">
       <SidebarTrigger />
       <div className="font-bold">{t("app.title")}</div>
     </header>
@@ -47,9 +47,7 @@ export default function AppRoot({ children }: { children: React.ReactNode }) {
           <AppSidebar />
           <SidebarInset>
             <Header />
-              <NetworkGuard>
-                {children}
-              </NetworkGuard>
+            <NetworkGuard>{children}</NetworkGuard>
           </SidebarInset>
         </SidebarProvider>
       </ThemeProvider>

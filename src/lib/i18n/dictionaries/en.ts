@@ -22,6 +22,9 @@ export const en: Dictionary = {
   ui: {
     common: {
       close: "Close",
+      loading: "Loading",
+      error: "Error",
+      saved: "Saved",
     },
     breadcrumb: {
       more: "More",
@@ -86,6 +89,7 @@ export const en: Dictionary = {
       next: "Next",
       fullscreen: "Fullscreen",
       exitFullscreen: "Exit fullscreen",
+      noQuestions: "No questions available.",
     },
   },
   addQuizForm: {

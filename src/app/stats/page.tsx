@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useI18n } from "@/components/i18n/LanguageProvider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -34,68 +34,9 @@ type QuizStat = {
   questions: QuestionStat[];
 };
 
-function getDemoStats(): QuizStat[] {
-  return [
-    {
-      id: "q-1",
-      name: "General Knowledge #1",
-      playedAt: new Date().toISOString(),
-      questions: [
-        {
-          question: "When was our company founded?",
-          options: [
-            { option: "A", count: 5, correct: false },
-            { option: "B", count: 9, correct: true },
-            { option: "C", count: 1, correct: false },
-            { option: "D", count: 0, correct: false },
-          ],
-        },
-        {
-          question: "Which language powers Next.js?",
-          options: [
-            { option: "A", count: 1, correct: false },
-            { option: "B", count: 12, correct: true },
-            { option: "C", count: 0, correct: false },
-            { option: "D", count: 0, correct: false },
-          ],
-        },
-      ],
-    },
-    {
-      id: "q-2",
-      name: "Tech Trivia #2",
-      playedAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-      questions: [
-        {
-          question: "What is React?",
-          options: [
-            { option: "A", count: 2, correct: false },
-            { option: "B", count: 7, correct: false },
-            { option: "C", count: 10, correct: true },
-            { option: "D", count: 0, correct: false },
-          ],
-        },
-      ],
-    },
-  ];
-}
-
 export default function StatsPage() {
   const { t } = useI18n();
-  const [data, setData] = useState<QuizStat[]>([]);
-
-  // Try to read stats from localStorage; if nothing is found, keep empty (we show empty state)
-  useEffect(() => {
-    try {
-      const raw = typeof window !== "undefined" ? localStorage.getItem("pubquiz:stats") : null;
-      if (raw) {
-        const parsed = JSON.parse(raw) as QuizStat[];
-        if (Array.isArray(parsed)) setData(parsed);
-      }
-    } catch {
-      // ignore parse errors
-    }
-  }, []);
+  const [data] = useState<QuizStat[]>([]);
 
   const totals = useMemo(() => {
     const quizzes = data.length;
@@ -117,7 +58,7 @@ export default function StatsPage() {
     return { quizzes, questions, accuracy, lastPlayed: lastPlayed ? new Date(lastPlayed) : null };
   }, [data]);
 
-  const loadDemo = () => setData(getDemoStats());
+  // No backend stats endpoint defined; keeping empty state until implemented on server
 
   return (
     <div className="container mx-auto grid max-w-6xl gap-6 px-4 py-6">
@@ -181,15 +122,7 @@ export default function StatsPage() {
             <EmptyTitle>{t("pages.stats.emptyTitle")}</EmptyTitle>
             <EmptyDescription>{t("pages.stats.emptyDescription")}</EmptyDescription>
           </EmptyHeader>
-          <EmptyContent>
-            <button
-              onClick={loadDemo}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium"
-              type="button"
-            >
-              {t("pages.stats.loadDemo")}
-            </button>
-          </EmptyContent>
+          <EmptyContent />
         </Empty>
       ) : null}
 
