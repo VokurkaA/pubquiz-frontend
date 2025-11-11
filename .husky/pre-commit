@@ -1,11 +1,29 @@
-#!/usr/bin/env sh
-. "$(dirname "$0")/_/husky.sh"
+# Ensure Node.js tools are available (support NVM shells where git doesn't load your profile)
+if [ -z "$CI" ]; then
+	export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+	if [ -s "$NVM_DIR/nvm.sh" ]; then
+		. "$NVM_DIR/nvm.sh"
+		nvm use >/dev/null 2>&1 || true
+	fi
+fi
 
 echo "Running lint-staged (format + lint staged files)"
-npx lint-staged
+if command -v npm >/dev/null 2>&1; then
+	npm exec --yes lint-staged
+else
+	./node_modules/.bin/lint-staged
+fi
 
 echo "Running TypeScript typecheck"
-npm run typecheck
+if command -v npm >/dev/null 2>&1; then
+	npm run typecheck
+else
+	./node_modules/.bin/tsc --noEmit
+fi
 
 echo "Running ESLint (full repo)"
-npm run lint
+if command -v npm >/dev/null 2>&1; then
+	npm run lint
+else
+	./node_modules/.bin/eslint .
+fi
