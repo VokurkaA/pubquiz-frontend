@@ -71,6 +71,7 @@ export type Dictionary = {
       liveScan: string;
       showCamera: string;
       hideCamera: string;
+      team: string; // Team {n}
     };
   };
   addQuizForm: {

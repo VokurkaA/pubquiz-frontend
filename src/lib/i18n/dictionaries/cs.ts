@@ -101,6 +101,7 @@ export const cs: Dictionary = {
       liveScan: "Živý sken",
       showCamera: "Zobrazit kameru",
       hideCamera: "Skrýt kameru",
+      team: "Tým {n}",
     },
   },
   addQuizForm: {

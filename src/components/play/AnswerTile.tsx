@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { Badge } from "@/components/ui/badge";
 
 export type AnswerShape = "triangle" | "diamond" | "circle" | "square";
 
@@ -14,6 +15,7 @@ export function AnswerTile({
   selected,
   correct,
   disabled,
+  teams,
   onClick,
 }: {
   index: number;
@@ -23,6 +25,7 @@ export function AnswerTile({
   selected?: boolean;
   correct?: boolean;
   disabled?: boolean;
+  teams?: string[];
   onClick?: () => void;
 }) {
   return (
@@ -31,8 +34,8 @@ export function AnswerTile({
       onClick={onClick}
       disabled={disabled}
       className={[
-        "focus-visible:ring-ring rounded-2xl p-5 text-left transition focus:outline-none focus-visible:ring-2",
-        "flex min-h-40 items-center gap-5 sm:min-h-48 sm:gap-6 md:min-h-56 lg:min-h-64",
+        "focus-visible:ring-ring rounded-2xl p-4 text-left transition focus:outline-none focus-visible:ring-2",
+        "flex min-h-40 items-stretch gap-4 sm:min-h-48 sm:gap-5 md:min-h-56 lg:min-h-64",
         color.base,
         color.hover,
         disabled ? "opacity-80" : "",
@@ -42,14 +45,31 @@ export function AnswerTile({
       ].join(" ")}
       aria-pressed={disabled ? undefined : selected}
     >
-      <div className="grid h-12 w-12 place-items-center rounded-md bg-white/20 sm:h-14 sm:w-14 md:h-16 md:w-16">
+      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-md bg-white/20 sm:h-14 sm:w-14 md:h-16 md:w-16">
         <ShapeIcon shape={shape} />
       </div>
-      <div className="flex min-w-0 flex-1 items-center justify-between gap-4">
-        <span className="truncate text-xl font-semibold sm:text-2xl md:text-3xl lg:text-4xl">
-          {label}
-        </span>
-        <span className="text-base font-bold text-white/80 md:text-lg lg:text-xl">{index + 1}</span>
+      <div className="flex min-w-0 flex-1 flex-col justify-between py-1">
+        <div className="flex items-start justify-between gap-4">
+          <span className="truncate text-xl font-semibold sm:text-2xl md:text-3xl lg:text-4xl">
+            {label}
+          </span>
+          <span className="text-base font-bold text-white/80 md:text-lg lg:text-xl">
+            {index + 1}
+          </span>
+        </div>
+        {teams && teams.length > 0 && (
+          <div className="mt-2 flex flex-wrap content-end gap-1.5">
+            {teams.map((team) => (
+              <Badge
+                key={team}
+                variant="secondary"
+                className="border-none bg-black/20 whitespace-nowrap text-white hover:bg-black/30"
+              >
+                {team}
+              </Badge>
+            ))}
+          </div>
+        )}
       </div>
     </button>
   );

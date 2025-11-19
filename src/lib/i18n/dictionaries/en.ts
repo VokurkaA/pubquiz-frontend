@@ -101,6 +101,7 @@ export const en: Dictionary = {
       liveScan: "Live Scan",
       showCamera: "Show Camera",
       hideCamera: "Hide Camera",
+      team: "Team {n}",
     },
   },
   addQuizForm: {

@@ -21,6 +21,7 @@ const COLORS: Readonly<AnswerTileColor[]> = [
 ] as const;
 
 const ALLOWED_IDS = [992, 960, 800, 36];
+const ANSWER_LETTERS = ["A", "B", "C", "D"];
 
 type ViewState = "SELECT" | "PRESENTING";
 
@@ -163,6 +164,7 @@ export default function PlayPage() {
 
       try {
         const imageData = ctx.getImageData(0, 0, canvasEl.width, canvasEl.height);
+
         const markers = detectorRef.current.detect(imageData) as ArMarker[];
 
         ctx.lineWidth = 3;
@@ -198,7 +200,10 @@ export default function PlayPage() {
             const y = Math.min(...corners.map((c) => c.y));
             ctx.fillStyle = "lime";
             ctx.font = "bold 24px monospace";
-            ctx.fillText(`${answer} (${marker.id})`, x, y - 10);
+            // We can't use 't' here easily inside this closure without adding it to deps,
+            // which might cause re-init of camera loop. Simple fallback is safer for the canvas draw.
+            const label = `Team ${playerIndex + 1}: ${answer}`;
+            ctx.fillText(label, x, y - 10);
           }
         });
 
@@ -360,7 +365,7 @@ export default function PlayPage() {
             </span>
           </div>
           <div className="flex items-center gap-4">
-            {/* Live Detection Results */}
+            {/* Live Detection Results - Simple Header View */}
             <div className="hidden items-center gap-2 font-mono text-xs sm:flex">
               {detectedAnswers.map((ans, i) => (
                 <div
@@ -368,6 +373,7 @@ export default function PlayPage() {
                   className={`flex h-6 w-6 items-center justify-center rounded border ${
                     ans !== "-" ? "bg-primary text-primary-foreground border-primary" : "opacity-50"
                   }`}
+                  title={t("pages.play.team", { n: i + 1 })}
                 >
                   {ans}
                 </div>
@@ -411,17 +417,28 @@ export default function PlayPage() {
           </Card>
 
           <div className="mx-auto grid w-full max-w-5xl flex-1 grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
-            {question.answers.slice(0, 4).map((ans, i) => (
-              <AnswerTile
-                key={i}
-                index={i}
-                label={ans}
-                shape={SHAPES[i]}
-                color={COLORS[i]}
-                correct={reveal && i === question.correctIndex}
-                disabled={reveal}
-              />
-            ))}
+            {question.answers.slice(0, 4).map((ans, i) => {
+              // Calculate which teams voted for this answer
+              const optionLetter = ANSWER_LETTERS[i];
+              const votedTeams = detectedAnswers
+                .map((val, idx) =>
+                  val === optionLetter ? t("pages.play.team", { n: idx + 1 }) : null
+                )
+                .filter((v) => v !== null) as string[];
+
+              return (
+                <AnswerTile
+                  key={i}
+                  index={i}
+                  label={ans}
+                  shape={SHAPES[i]}
+                  color={COLORS[i]}
+                  correct={reveal && i === question.correctIndex}
+                  disabled={reveal}
+                  teams={votedTeams}
+                />
+              );
+            })}
           </div>
         </div>
 
