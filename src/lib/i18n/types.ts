@@ -68,6 +68,9 @@ export type Dictionary = {
       quizCompleted: string;
       backToMenu: string;
       sessionId: string;
+      liveScan: string;
+      showCamera: string;
+      hideCamera: string;
     };
   };
   addQuizForm: {

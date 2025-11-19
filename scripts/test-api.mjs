@@ -13,7 +13,11 @@
   and set NODE_FETCH_FALLBACK=1 to auto-load it.
 */
 
-const BASE = (process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "http://3.70.249.70:6767").replace(/\/+$/, "");
+const BASE = (
+  process.env.API_BASE_URL ||
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "http://3.70.249.70:6767"
+).replace(/\/+$/, "");
 
 async function ensureFetch() {
   if (typeof fetch !== "undefined") return fetch;
@@ -25,7 +29,9 @@ async function ensureFetch() {
       throw new Error("node-fetch fallback requested but not installed. Run: npm i node-fetch -D");
     }
   }
-  throw new Error("This script requires Node 18+ (global fetch) or set NODE_FETCH_FALLBACK=1 with node-fetch installed.");
+  throw new Error(
+    "This script requires Node 18+ (global fetch) or set NODE_FETCH_FALLBACK=1 with node-fetch installed."
+  );
 }
 
 function buildUrl(path) {
@@ -78,9 +84,19 @@ async function requestMeta(method, path, body) {
   }
   if (!res.ok) {
     const extra = text ?? (data !== undefined ? JSON.stringify(data) : "");
-    throw new Error(`API ${method} ${url} failed: ${res.status} ${res.statusText}${extra ? ` — ${extra}` : ""}`);
+    throw new Error(
+      `API ${method} ${url} failed: ${res.status} ${res.statusText}${extra ? ` — ${extra}` : ""}`
+    );
   }
-  return { url, status: res.status, statusText: res.statusText, contentType: ct, location, data, text };
+  return {
+    url,
+    status: res.status,
+    statusText: res.statusText,
+    contentType: ct,
+    location,
+    data,
+    text,
+  };
 }
 
 function makeTestQuizSnakeWithObjs() {
@@ -197,16 +213,20 @@ async function main() {
   for (const r of listProbes) {
     if (r.ok) {
       const dtype = r.res && r.res.data && typeof r.res.data;
-      const keys = r.res && r.res.data && typeof r.res.data === "object" ? Object.keys(r.res.data) : undefined;
-      console.info(`GET ${r.path} => ${r.res.status} ${r.res.statusText} (${r.res.contentType || "no-ct"}) count=${r.count ?? "n/a"} dtype=${dtype} keys=${keys ? keys.join(",") : "-"} arrayKey=${r.key || "-"}`);
+      const keys =
+        r.res && r.res.data && typeof r.res.data === "object" ? Object.keys(r.res.data) : undefined;
+      console.info(
+        `GET ${r.path} => ${r.res.status} ${r.res.statusText} (${r.res.contentType || "no-ct"}) count=${r.count ?? "n/a"} dtype=${dtype} keys=${keys ? keys.join(",") : "-"} arrayKey=${r.key || "-"}`
+      );
     } else {
       console.info(`GET ${r.path} => failed:`, r.err?.message || r.err);
     }
   }
 
   // Choose preferred endpoint: one that returned an array (prefer /quiz)
-  const preferred = listProbes.find(r => r.ok && r.count != null && r.path === "/quiz")
-    || listProbes.find(r => r.ok && r.count != null);
+  const preferred =
+    listProbes.find((r) => r.ok && r.count != null && r.path === "/quiz") ||
+    listProbes.find((r) => r.ok && r.count != null);
   const listPath = preferred?.path || "/quiz";
   const baseCount = preferred?.count ?? 0;
   console.info(`\nUsing list endpoint: ${listPath} (baseline count=${baseCount})`);
@@ -224,7 +244,9 @@ async function main() {
     createdName = attempt.body.name;
     console.info(`\nCreating quiz (attempt: ${attempt.label})...`);
     const postRes = await createAt(listPath, attempt.body);
-    console.info(`POST ${listPath} => ${postRes.status} ${postRes.statusText} (${postRes.contentType || "no-ct"}) location=${postRes.location || "-"}`);
+    console.info(
+      `POST ${listPath} => ${postRes.status} ${postRes.statusText} (${postRes.contentType || "no-ct"}) location=${postRes.location || "-"}`
+    );
     if (postRes.contentType.includes("application/json")) {
       console.info("Response JSON:", postRes.data);
     } else if (postRes.text) {
@@ -233,21 +255,28 @@ async function main() {
 
     const after = await requestMeta("GET", listPath);
     const { arr, key } = toArrayFromEnvelope(after.data);
-    console.info(`GET ${listPath} => ${after.status} ${after.statusText} (${after.contentType || "no-ct"}) count=${arr ? arr.length : 0} arrayKey=${key || "-"}`);
+    console.info(
+      `GET ${listPath} => ${after.status} ${after.statusText} (${after.contentType || "no-ct"}) count=${arr ? arr.length : 0} arrayKey=${key || "-"}`
+    );
     if (arr.length > baseCount) {
       success = true;
-      const found = arr.find(q => q.name === createdName);
+      const found = arr.find((q) => q.name === createdName);
       if (found) {
         console.info("Created quiz appears in list:", { id: found.id, name: found.name });
       } else {
-        console.info("List grew but created quiz not found by name; sample:", arr.slice(0, 3).map(q => ({ id: q.id, name: q.name })));
+        console.info(
+          "List grew but created quiz not found by name; sample:",
+          arr.slice(0, 3).map((q) => ({ id: q.id, name: q.name }))
+        );
       }
       break;
     }
   }
 
   if (!success) {
-    console.error("\nAll attempts failed to produce a visible quiz in the list. Check API expectations for payload shape or endpoint.");
+    console.error(
+      "\nAll attempts failed to produce a visible quiz in the list. Check API expectations for payload shape or endpoint."
+    );
     process.exitCode = 2;
   }
 }

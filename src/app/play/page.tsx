@@ -9,7 +9,7 @@ import { useI18n } from "@/components/i18n/LanguageProvider";
 import { AnswerTile, type AnswerShape, type AnswerTileColor } from "@/components/play/AnswerTile";
 import { PlayHeader } from "@/components/play/PlayHeader";
 import { api, quizToUiQuestions, type UiQuestion, type ApiQuiz } from "@/lib/api";
-import { PlayIcon, UsersIcon } from "lucide-react";
+import { PlayIcon, UsersIcon, CameraIcon, CameraOffIcon } from "lucide-react";
 import { toast } from "sonner";
 
 const SHAPES: AnswerShape[] = ["triangle", "diamond", "circle", "square"];
@@ -20,7 +20,14 @@ const COLORS: Readonly<AnswerTileColor[]> = [
   { base: "bg-green-500", hover: "hover:bg-green-600" },
 ] as const;
 
+const ALLOWED_IDS = [992, 960, 800, 36];
+
 type ViewState = "SELECT" | "PRESENTING";
+
+interface ArMarker {
+  id: number;
+  corners: Array<{ x: number; y: number }>;
+}
 
 export default function PlayPage() {
   const { t } = useI18n();
@@ -39,6 +46,14 @@ export default function PlayPage() {
   const [countdownKey, setCountdownKey] = useState(0);
   const [isFs, setIsFs] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
+
+  // Scanner State
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const detectorRef = useRef<any>(null);
+  const [showCamera, setShowCamera] = useState(true);
+  const [detectedAnswers, setDetectedAnswers] = useState<string[]>(["-", "-", "-", "-"]);
 
   // 1. Fetch quizzes on mount
   useEffect(() => {
@@ -70,6 +85,148 @@ export default function PlayPage() {
     }
   };
 
+  // Scanner Logic (Merged from Scan page)
+  useEffect(() => {
+    if (view !== "PRESENTING" || !showCamera) return;
+
+    let streaming = true;
+    let animationFrameId: number;
+
+    // Capture refs to variable to safely cleanup
+    const videoEl = videoRef.current;
+    const canvasEl = canvasRef.current;
+
+    const loadScripts = () =>
+      new Promise<void>((resolve) => {
+        if (window.CV && window.AR) {
+          resolve();
+          return;
+        }
+        const cvScript = document.createElement("script");
+        cvScript.src = "/libs/cv.js";
+        cvScript.async = true;
+        cvScript.onload = () => {
+          const arucoScript = document.createElement("script");
+          arucoScript.src = "/libs/aruco.js";
+          arucoScript.async = true;
+          arucoScript.onload = () => {
+            console.info("CV and js-aruco loaded");
+            resolve();
+          };
+          document.body.appendChild(arucoScript);
+        };
+        document.body.appendChild(cvScript);
+      });
+
+    const startCamera = async () => {
+      if (!videoEl) return;
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" },
+        });
+        videoEl.srcObject = stream;
+
+        await new Promise<void>((resolve) => {
+          videoEl.addEventListener("loadedmetadata", () => resolve(), { once: true });
+        });
+
+        videoEl.play();
+
+        if (!detectorRef.current && window.AR) {
+          detectorRef.current = new window.AR.Detector({ dictionaryName: "ARUCO" });
+        }
+
+        animationFrameId = requestAnimationFrame(processFrame);
+      } catch (err) {
+        console.error("Camera access error:", err);
+        toast.error("Camera access failed");
+      }
+    };
+
+    const processFrame = () => {
+      if (!streaming || !videoEl || !canvasEl || !detectorRef.current) return;
+
+      const ctx = canvasEl.getContext("2d", { willReadFrequently: true });
+      if (!ctx) return;
+
+      if (canvasEl.width !== videoEl.videoWidth || canvasEl.height !== videoEl.videoHeight) {
+        canvasEl.width = videoEl.videoWidth;
+        canvasEl.height = videoEl.videoHeight;
+      }
+
+      if (videoEl.videoWidth === 0 || videoEl.videoHeight === 0) {
+        animationFrameId = requestAnimationFrame(processFrame);
+        return;
+      }
+
+      ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
+
+      try {
+        const imageData = ctx.getImageData(0, 0, canvasEl.width, canvasEl.height);
+        const markers = detectorRef.current.detect(imageData) as ArMarker[];
+
+        ctx.lineWidth = 3;
+
+        const currentAnswers = ["-", "-", "-", "-"];
+
+        markers.forEach((marker) => {
+          // Check if marker is in our allowed list
+          const playerIndex = ALLOWED_IDS.indexOf(marker.id);
+
+          // Draw corners
+          const corners = marker.corners;
+          ctx.strokeStyle = playerIndex >= 0 ? "lime" : "red";
+          ctx.beginPath();
+          for (let i = 0; i < corners.length; i++) {
+            const c = corners[i];
+            ctx.moveTo(c.x, c.y);
+            const next = corners[(i + 1) % corners.length];
+            ctx.lineTo(next.x, next.y);
+          }
+          ctx.stroke();
+          ctx.closePath();
+
+          if (playerIndex >= 0) {
+            const rotation = getMarkerRotation(marker) / 90 + 2;
+            // Map rotation to A/B/C/D. Rounding handles slight tilt.
+            const opts = ["A", "B", "C", "D", "A", "B", "C", "D", "A", "B", "C", "D"];
+            const answer = opts[Math.round(rotation)];
+            currentAnswers[playerIndex] = answer;
+
+            // Draw ID and Answer
+            const x = Math.min(...corners.map((c) => c.x));
+            const y = Math.min(...corners.map((c) => c.y));
+            ctx.fillStyle = "lime";
+            ctx.font = "bold 24px monospace";
+            ctx.fillText(`${answer} (${marker.id})`, x, y - 10);
+          }
+        });
+
+        // Update state if changed (simple check to reduce re-renders)
+        setDetectedAnswers((prev) => {
+          if (prev.join() !== currentAnswers.join()) {
+            return currentAnswers;
+          }
+          return prev;
+        });
+      } catch (err) {
+        console.warn("Detection error:", err);
+      }
+
+      animationFrameId = requestAnimationFrame(processFrame);
+    };
+
+    loadScripts().then(() => startCamera());
+
+    return () => {
+      streaming = false;
+      cancelAnimationFrame(animationFrameId);
+      if (videoEl?.srcObject) {
+        (videoEl.srcObject as MediaStream).getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, [view, showCamera]);
+
   // Presenter Logic
   const question = useMemo(
     () => (questions && questions[currentIndex]) || null,
@@ -81,6 +238,7 @@ export default function PlayPage() {
       setCurrentIndex((p) => p + 1);
       setReveal(false);
       setCountdownKey((p) => p + 1);
+      setDetectedAnswers(["-", "-", "-", "-"]); // Reset detected answers for new question
     }
   }, [currentIndex, questions.length]);
 
@@ -113,6 +271,7 @@ export default function PlayPage() {
       if (e.key === "ArrowRight") handleNext();
       if (e.key === " " || e.key.toLowerCase() === "r") setReveal((r) => !r);
       if (e.key.toLowerCase() === "f") void toggleFullscreen();
+      if (e.key.toLowerCase() === "c") setShowCamera((s) => !s);
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
@@ -200,7 +359,22 @@ export default function PlayPage() {
               <span className="text-foreground font-mono font-bold select-all">{instanceId}</span>
             </span>
           </div>
-          <div>{quiz?.name}</div>
+          <div className="flex items-center gap-4">
+            {/* Live Detection Results */}
+            <div className="hidden items-center gap-2 font-mono text-xs sm:flex">
+              {detectedAnswers.map((ans, i) => (
+                <div
+                  key={i}
+                  className={`flex h-6 w-6 items-center justify-center rounded border ${
+                    ans !== "-" ? "bg-primary text-primary-foreground border-primary" : "opacity-50"
+                  }`}
+                >
+                  {ans}
+                </div>
+              ))}
+            </div>
+            <div>{quiz?.name}</div>
+          </div>
         </div>
         <PlayHeader
           countdownKey={countdownKey}
@@ -226,36 +400,79 @@ export default function PlayPage() {
         />
       </div>
 
-      {/* Question Area */}
-      <div className="flex min-h-0 flex-col items-center justify-center gap-8">
-        <Card className="w-full max-w-5xl border-none bg-transparent shadow-none">
-          <h1 className="text-center text-3xl leading-tight font-bold text-balance sm:text-4xl md:text-5xl lg:text-6xl">
-            {question.questionText}
-          </h1>
-        </Card>
-      </div>
+      {/* Content Area: Split between Question/Answers and Camera */}
+      <div className="grid min-h-0 grid-rows-[auto_1fr] gap-6 lg:grid-cols-[1fr_auto] lg:grid-rows-1">
+        {/* Left: Question & Answers */}
+        <div className="flex flex-col gap-8">
+          <Card className="w-full border-none bg-transparent shadow-none">
+            <h1 className="text-center text-3xl leading-tight font-bold text-balance sm:text-4xl md:text-5xl lg:text-6xl">
+              {question.questionText}
+            </h1>
+          </Card>
 
-      {/* Answer Grid */}
-      <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
-        {question.answers.slice(0, 4).map((ans, i) => (
-          <AnswerTile
-            key={i}
-            index={i}
-            label={ans}
-            shape={SHAPES[i]}
-            color={COLORS[i]}
-            correct={reveal && i === question.correctIndex}
-            disabled={reveal}
-          />
-        ))}
-        {/* Spacers if fewer than 4 answers */}
-        {Array.from({ length: Math.max(0, 4 - question.answers.length) }).map((_, k) => (
-          <div
-            key={`spacer-${k}`}
-            className="border-muted/20 hidden rounded-2xl border-2 border-dashed opacity-20 sm:block"
-          />
-        ))}
+          <div className="mx-auto grid w-full max-w-5xl flex-1 grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
+            {question.answers.slice(0, 4).map((ans, i) => (
+              <AnswerTile
+                key={i}
+                index={i}
+                label={ans}
+                shape={SHAPES[i]}
+                color={COLORS[i]}
+                correct={reveal && i === question.correctIndex}
+                disabled={reveal}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Right: Camera Preview */}
+        <div className="flex flex-col gap-2">
+          {showCamera && (
+            <div className="relative aspect-video w-full overflow-hidden rounded-xl border bg-black/10 lg:w-80 xl:w-96">
+              <video
+                ref={videoRef}
+                className="absolute inset-0 h-full w-full object-cover opacity-0"
+                playsInline
+                muted
+              />
+              <canvas ref={canvasRef} className="absolute inset-0 h-full w-full object-contain" />
+              <div className="absolute right-2 bottom-2 rounded bg-black/50 px-2 py-0.5 text-[10px] text-white backdrop-blur">
+                {t("pages.play.liveScan")}
+              </div>
+            </div>
+          )}
+          <div className="flex justify-end">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowCamera(!showCamera)}
+              className="text-muted-foreground"
+            >
+              {showCamera ? (
+                <>
+                  <CameraOffIcon className="mr-2 size-4" /> {t("pages.play.hideCamera")}
+                </>
+              ) : (
+                <>
+                  <CameraIcon className="mr-2 size-4" /> {t("pages.play.showCamera")}
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
+}
+
+function getMarkerRotation(marker: ArMarker) {
+  const c = marker.corners;
+  // Take top-left and top-right corners
+  const dx = c[1].x - c[0].x;
+  const dy = c[1].y - c[0].y;
+  // Angle in radians
+  const angleRad = Math.atan2(dy, dx);
+  // Convert to degrees
+  const angleDeg = angleRad * (180 / Math.PI);
+  return angleDeg;
 }

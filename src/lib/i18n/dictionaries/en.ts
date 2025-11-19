@@ -98,6 +98,9 @@ export const en: Dictionary = {
       quizCompleted: "Quiz Completed!",
       backToMenu: "Back to Menu",
       sessionId: "Session ID:",
+      liveScan: "Live Scan",
+      showCamera: "Show Camera",
+      hideCamera: "Hide Camera",
     },
   },
   addQuizForm: {

@@ -82,16 +82,16 @@ export default function Scan() {
 
         ctx.lineWidth = 3;
 
-        const allowedIds = [992, 960, 800, 36] //
+        const allowedIds = [992, 960, 800, 36]; //
 
-        const answers = ['-', '-', '-', '-']
+        const answers = ["-", "-", "-", "-"];
 
         markers.forEach((marker: any) => {
-
           if (true || allowedIds.includes(marker.id)) {
-
             const rotation = getMarkerRotation(marker) / 90 + 2;
-            const answer = ['A', 'B', 'C', 'D', 'A', 'B', 'C', 'D', 'A', 'B', 'C', 'D'][Math.round(rotation)];
+            const answer = ["A", "B", "C", "D", "A", "B", "C", "D", "A", "B", "C", "D"][
+              Math.round(rotation)
+            ];
             answers[allowedIds.indexOf(marker.id)] = answer;
 
             const corners = marker.corners;
@@ -143,7 +143,7 @@ export default function Scan() {
 
       <div className="relative mt-4">
         <video ref={videoRef} style={{ display: "none" }} />
-        <canvas ref={canvasRef} className="border w-full rounded-lg" />
+        <canvas ref={canvasRef} className="w-full rounded-lg border" />
       </div>
     </div>
   );
