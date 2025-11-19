@@ -87,9 +87,23 @@ export const cs: Dictionary = {
       reveal: "Zobrazit",
       hide: "Skrýt",
       next: "Další",
+<<<<<<< HEAD
       fullscreen: "Na celou obrazovku",
       exitFullscreen: "Ukončit celou obrazovku",
       noQuestions: "Nejsou dostupné žádné otázky.",
+=======
+      skip: "Přeskočit",
+      fullscreen: "Na celou obrazovku",
+      exitFullscreen: "Ukončit celou obrazovku",
+      noQuestions: "Nejsou dostupné žádné otázky.",
+      selectQuizDescription: "Vyberte kvíz pro zahájení nové relace.",
+      noQuizzesFound: "Nebyly nalezeny žádné kvízy.",
+      createOne: "Vytvořit nový?",
+      startSession: "Spustit relaci",
+      quizCompleted: "Kvíz dokončen!",
+      backToMenu: "Zpět do menu",
+      sessionId: "ID relace:",
+>>>>>>> 9e72f3ecb45fb8c2310f24c30f6f93bf48404e7f
     },
   },
   addQuizForm: {

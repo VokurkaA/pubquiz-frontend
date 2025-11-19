@@ -56,7 +56,7 @@ export function AddQuizForm({ className, onSubmit }: AddQuizFormProps) {
     const payload = {
       name: values.name,
       questions: values.questions.map((q) => ({
-        question_text: q.questionText,
+        text: q.questionText,
         answers: q.answers.map((a, idx) => ({ text: a.text, isCorrect: idx === q.correctIndex })),
       })),
     };

@@ -1,5 +1,3 @@
-// Central i18n dictionary shape used to enforce parity across locales
-// Any change here must be reflected in all dictionaries (en, cs, ...)
 export type Dictionary = {
   app: { title: string };
   sidebar: {
@@ -59,9 +57,23 @@ export type Dictionary = {
       reveal: string;
       hide: string;
       next: string;
+<<<<<<< HEAD
       fullscreen: string;
       exitFullscreen: string;
       noQuestions: string;
+=======
+      skip: string;
+      fullscreen: string;
+      exitFullscreen: string;
+      noQuestions: string;
+      selectQuizDescription: string;
+      noQuizzesFound: string;
+      createOne: string;
+      startSession: string;
+      quizCompleted: string;
+      backToMenu: string;
+      sessionId: string;
+>>>>>>> 9e72f3ecb45fb8c2310f24c30f6f93bf48404e7f
     };
   };
   addQuizForm: {

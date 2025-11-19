@@ -87,9 +87,23 @@ export const en: Dictionary = {
       reveal: "Reveal",
       hide: "Hide",
       next: "Next",
+<<<<<<< HEAD
       fullscreen: "Fullscreen",
       exitFullscreen: "Exit fullscreen",
       noQuestions: "No questions available.",
+=======
+      skip: "Skip",
+      fullscreen: "Fullscreen",
+      exitFullscreen: "Exit fullscreen",
+      noQuestions: "No questions available.",
+      selectQuizDescription: "Select a quiz to initialize a new session.",
+      noQuizzesFound: "No quizzes found.",
+      createOne: "Create one?",
+      startSession: "Start Session",
+      quizCompleted: "Quiz Completed!",
+      backToMenu: "Back to Menu",
+      sessionId: "Session ID:",
+>>>>>>> 9e72f3ecb45fb8c2310f24c30f6f93bf48404e7f
     },
   },
   addQuizForm: {

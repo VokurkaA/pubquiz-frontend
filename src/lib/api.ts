@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // Simple typed API client for the PubQuiz backend
 // Base URL can be configured via NEXT_PUBLIC_API_BASE_URL, defaults to http://127.0.0.1:6767
 
@@ -5,6 +6,8 @@
 // Note: If the app runs over HTTPS and the API is HTTP, the browser will block requests (mixed content),
 // resulting in a generic "TypeError: Failed to fetch". Prefer setting NEXT_PUBLIC_API_BASE_URL to an HTTPS endpoint
 // or a same-origin reverse proxy.
+=======
+>>>>>>> 9e72f3ecb45fb8c2310f24c30f6f93bf48404e7f
 const RAW_BASE =
   (typeof process !== "undefined" && process.env.NEXT_PUBLIC_API_BASE_URL) ||
   "http://3.70.249.70:6767";
@@ -28,17 +31,24 @@ async function request<T>(path: string, opts?: { method?: HttpMethod; body?: unk
       headers: {
         "Content-Type": "application/json",
       },
+<<<<<<< HEAD
       // Explicit CORS mode for clarity; adjust if you need credentials
+=======
+>>>>>>> 9e72f3ecb45fb8c2310f24c30f6f93bf48404e7f
       mode: "cors",
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
   } catch (e) {
     const reason = e instanceof Error ? e.message : String(e);
+<<<<<<< HEAD
     // Provide a clearer hint for common failures (network/mixed content/CORS)
     throw new Error(
       `Network error calling ${method} ${url}: ${reason}. ` +
         `Check NEXT_PUBLIC_API_BASE_URL (${API_BASE_URL}), API availability, and CORS/HTTPS configuration.`
     );
+=======
+    throw new Error(`Network error calling ${method} ${url}: ${reason}. Check API availability.`);
+>>>>>>> 9e72f3ecb45fb8c2310f24c30f6f93bf48404e7f
   }
 
   if (!res.ok) {
@@ -47,6 +57,7 @@ async function request<T>(path: string, opts?: { method?: HttpMethod; body?: unk
       `API ${method} ${url} failed: ${res.status} ${res.statusText}${text ? ` — ${text}` : ""}`
     );
   }
+<<<<<<< HEAD
   // Some DELETEs may not return JSON
   const ct = res.headers.get("content-type") || "";
   if (!ct.includes("application/json")) return undefined as T;
@@ -54,13 +65,37 @@ async function request<T>(path: string, opts?: { method?: HttpMethod; body?: unk
 }
 
 // Types are kept broad since backend contract isn't fully typed here.
+=======
+
+  const ct = res.headers.get("content-type") || "";
+  if (ct.includes("application/json")) {
+    return (await res.json()) as T;
+  }
+  // Fallback for text responses (like raw UUIDs)
+  const text = await res.text();
+  try {
+    // Try parsing in case it's a JSON primitive (e.g. "active")
+    return JSON.parse(text) as T;
+  } catch {
+    return text as unknown as T;
+  }
+}
+
+// Updated types based on latest backend spec
+>>>>>>> 9e72f3ecb45fb8c2310f24c30f6f93bf48404e7f
 export type ApiQuiz = {
   id: string;
   name: string;
   questions: Array<{
+<<<<<<< HEAD
     question_text?: string;
     questionText?: string;
     answers: Array<{ text: string; isCorrect?: boolean } | string>;
+=======
+    id?: string;
+    text: string;
+    answers: Array<{ id?: string; text: string; isCorrect: boolean }>;
+>>>>>>> 9e72f3ecb45fb8c2310f24c30f6f93bf48404e7f
   }>;
 };
 
@@ -77,12 +112,19 @@ export const api = {
     request<void>(`/quiz/${encodeURIComponent(quizId)}`, { method: "DELETE" }),
 
   // Instances
+<<<<<<< HEAD
   createInstance: (quizId: string, body?: unknown) =>
     request<{ id: string }>(`/quiz/${encodeURIComponent(quizId)}/instance`, {
+=======
+  // Returns the instance UUID string directly
+  createInstance: (quizId: string, body?: unknown) =>
+    request<string>(`/quiz/${encodeURIComponent(quizId)}/instance`, {
+>>>>>>> 9e72f3ecb45fb8c2310f24c30f6f93bf48404e7f
       method: "POST",
       body,
     }),
   getInstance: (instanceId: string) =>
+<<<<<<< HEAD
     request<unknown>(`/quiz/instance/${encodeURIComponent(instanceId)}`),
   deleteInstance: (instanceId: string) =>
     request<void>(`/quiz/instance/${encodeURIComponent(instanceId)}`, { method: "DELETE" }),
@@ -90,6 +132,17 @@ export const api = {
     request<unknown>(`/quiz/instance/${encodeURIComponent(instanceId)}/state`, {
       method: "POST",
       body,
+=======
+    request<{ quizId: string; state: "active" | "completed" | "paused" }>(
+      `/quiz/instance/${encodeURIComponent(instanceId)}`
+    ),
+  deleteInstance: (instanceId: string) =>
+    request<void>(`/quiz/instance/${encodeURIComponent(instanceId)}`, { method: "DELETE" }),
+  updateInstanceState: (instanceId: string, state: "active" | "completed" | "paused") =>
+    request<unknown>(`/quiz/instance/${encodeURIComponent(instanceId)}/state`, {
+      method: "POST",
+      body: state,
+>>>>>>> 9e72f3ecb45fb8c2310f24c30f6f93bf48404e7f
     }),
   postAnswer: (instanceId: string, body: unknown) =>
     request<unknown>(`/quiz/instance/${encodeURIComponent(instanceId)}/answer`, {
@@ -102,6 +155,7 @@ export const api = {
 export type UiQuestion = { questionText: string; answers: string[]; correctIndex: number | null };
 
 export function quizToUiQuestions(q: ApiQuiz): UiQuestion[] {
+<<<<<<< HEAD
   type ApiQuestion = ApiQuiz["questions"][number];
   const toText = (qq: ApiQuestion): string => {
     if ("questionText" in qq && typeof qq.questionText === "string") return qq.questionText;
@@ -118,6 +172,13 @@ export function quizToUiQuestions(q: ApiQuiz): UiQuestion[] {
     const answersRaw = qq.answers || [];
     const answers: string[] = answersRaw.map((a) => (typeof a === "string" ? a : a.text));
     const idx = answersRaw.findIndex((a) => isAnswerObj(a) && a.isCorrect === true);
+=======
+  return (q.questions || []).map((qq) => {
+    const questionText = qq.text;
+    const answersRaw = qq.answers || [];
+    const answers: string[] = answersRaw.map((a) => a.text);
+    const idx = answersRaw.findIndex((a) => a.isCorrect);
+>>>>>>> 9e72f3ecb45fb8c2310f24c30f6f93bf48404e7f
     const correctIndex = idx >= 0 ? idx : null;
     return { questionText, answers, correctIndex };
   });
