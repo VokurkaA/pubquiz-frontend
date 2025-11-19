@@ -98,6 +98,9 @@ export const cs: Dictionary = {
       quizCompleted: "Kvíz dokončen!",
       backToMenu: "Zpět do menu",
       sessionId: "ID relace:",
+      liveScan: "Živý sken",
+      showCamera: "Zobrazit kameru",
+      hideCamera: "Skrýt kameru",
     },
   },
   addQuizForm: {
