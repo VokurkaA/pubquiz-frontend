@@ -7,6 +7,7 @@ export type Dictionary = {
     scanner: string;
     addQuiz: string;
     stats: string;
+    play: string;
     language: string;
     theme: string;
     themeToggle: {
@@ -17,7 +18,7 @@ export type Dictionary = {
     };
   };
   ui: {
-    common: { close: string };
+    common: { close: string; loading: string; error: string; saved: string };
     breadcrumb: { more: string };
     carousel: { previousSlide: string; nextSlide: string };
     pagination: { previous: string; next: string; morePages: string };
@@ -30,7 +31,38 @@ export type Dictionary = {
   pages: {
     scan: { title: string; subtitle: string };
     addQuiz: { title: string };
-    stats: { title: string };
+    stats: {
+      title: string;
+      totalQuizzes: string;
+      numberOfSessions: string;
+      questions: string;
+      acrossSessions: string;
+      accuracy: string;
+      correctRatio: string;
+      lastPlayed: string;
+      mostRecentSession: string;
+      emptyTitle: string;
+      emptyDescription: string;
+      loadDemo: string;
+      questionsCount_one: string; // {n}
+      questionsCount_other: string; // {n}
+      votesCount_one: string; // {n}
+      votesCount_other: string; // {n}
+      percent: string; // {n}
+      percentCorrect: string; // {n}
+    };
+    offline: { title: string; description: string; retry: string; goHome: string };
+    play: {
+      title: string;
+      button: string;
+      questionIndicator: string; // Question {i} of {n}
+      reveal: string;
+      hide: string;
+      next: string;
+      fullscreen: string;
+      exitFullscreen: string;
+      noQuestions: string;
+    };
   };
   addQuizForm: {
     nameLabel: string;

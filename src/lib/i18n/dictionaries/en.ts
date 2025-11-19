@@ -9,6 +9,7 @@ export const en: Dictionary = {
     scanner: "Scanner",
     addQuiz: "Add quiz",
     stats: "Stats",
+    play: "Play",
     language: "Language",
     theme: "Theme",
     themeToggle: {
@@ -21,6 +22,9 @@ export const en: Dictionary = {
   ui: {
     common: {
       close: "Close",
+      loading: "Loading",
+      error: "Error",
+      saved: "Saved",
     },
     breadcrumb: {
       more: "More",
@@ -50,6 +54,42 @@ export const en: Dictionary = {
     },
     stats: {
       title: "Stats",
+      totalQuizzes: "Total quizzes",
+      numberOfSessions: "Number of quiz sessions",
+      questions: "Questions",
+      acrossSessions: "Across all sessions",
+      accuracy: "Accuracy",
+      correctRatio: "Correct answers ratio",
+      lastPlayed: "Last played",
+      mostRecentSession: "Most recent session",
+      emptyTitle: "No stats yet",
+      emptyDescription:
+        "Play a quiz to see your statistics here. For a quick preview, load demo data.",
+      loadDemo: "Load demo stats",
+      questionsCount_one: "{n} question",
+      questionsCount_other: "{n} questions",
+      votesCount_one: "{n} vote",
+      votesCount_other: "{n} votes",
+      percent: "{n}%",
+      percentCorrect: "{n}% correct",
+    },
+    offline: {
+      title: "You are offline",
+      description:
+        "It looks like there's no internet connection. Some features may be unavailable.",
+      retry: "Retry",
+      goHome: "Go home",
+    },
+    play: {
+      title: "Play",
+      button: "Press me",
+      questionIndicator: "Question {i} of {n}",
+      reveal: "Reveal",
+      hide: "Hide",
+      next: "Next",
+      fullscreen: "Fullscreen",
+      exitFullscreen: "Exit fullscreen",
+      noQuestions: "No questions available.",
     },
   },
   addQuizForm: {

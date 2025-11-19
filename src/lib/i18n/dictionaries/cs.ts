@@ -9,6 +9,7 @@ export const cs: Dictionary = {
     scanner: "Skenování",
     addQuiz: "Přidat kvíz",
     stats: "Statistiky",
+    play: "Hraj",
     language: "Jazyk",
     theme: "Téma",
     themeToggle: {
@@ -21,6 +22,9 @@ export const cs: Dictionary = {
   ui: {
     common: {
       close: "Zavřít",
+      loading: "Načítání",
+      error: "Chyba",
+      saved: "Uloženo",
     },
     breadcrumb: {
       more: "Více",
@@ -50,6 +54,42 @@ export const cs: Dictionary = {
     },
     stats: {
       title: "Statistiky",
+      totalQuizzes: "Počet kvízů",
+      numberOfSessions: "Počet sezení kvízu",
+      questions: "Otázky",
+      acrossSessions: "Napříč všemi sezeními",
+      accuracy: "Přesnost",
+      correctRatio: "Poměr správných odpovědí",
+      lastPlayed: "Naposledy hráno",
+      mostRecentSession: "Nejnovější sezení",
+      emptyTitle: "Zatím žádné statistiky",
+      emptyDescription:
+        "Zahrajte si kvíz a zde uvidíte statistiky. Pro rychlý náhled načtěte ukázková data.",
+      loadDemo: "Načíst ukázková data",
+      questionsCount_one: "{n} otázka",
+      questionsCount_other: "{n} otázek",
+      votesCount_one: "{n} hlas",
+      votesCount_other: "{n} hlasů",
+      percent: "{n}%",
+      percentCorrect: "{n}% správně",
+    },
+    offline: {
+      title: "Jste offline",
+      description:
+        "Zdá se, že není k dispozici internetové připojení. Některé funkce nemusí fungovat.",
+      retry: "Zkusit znovu",
+      goHome: "Domů",
+    },
+    play: {
+      title: "Hraj",
+      button: "Stiskni mě",
+      questionIndicator: "Otázka {i} z {n}",
+      reveal: "Zobrazit",
+      hide: "Skrýt",
+      next: "Další",
+      fullscreen: "Na celou obrazovku",
+      exitFullscreen: "Ukončit celou obrazovku",
+      noQuestions: "Nejsou dostupné žádné otázky.",
     },
   },
   addQuizForm: {
